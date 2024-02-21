@@ -230,13 +230,21 @@ def handle_update_bin_contents(bin_id):
     request_data = request.get_json()
     contents = request_data.get("contents", "")
 
-    # update the database
-    collection.update_one(
-        {"email": g.email},                     # query
+    # update the database but only if the bin_id already exists
+    operation = collection.update_one(
+        {
+            "email": g.email,                   # query cond 1
+            F"bins.{bin_id}": {"$exists": True} # query cond 2
+        },                     
         {"$set":{F"bins.{bin_id}": contents}}   # update
     )
     body = dict(binId=bin_id, contents=contents)
-    return jsonify(body), 200
+
+    # if the bin_id did not exist, then return 404
+    if operation.matched_count:
+        return jsonify(body), 200
+    else:
+        return "", 404
 
 def handle_delete_bin(bin_id):
     collection.update_one(
