@@ -247,11 +247,17 @@ def handle_update_bin_contents(bin_id):
         return "", 404
 
 def handle_delete_bin(bin_id):
-    collection.update_one(
+    # no harm in deleting a bin that doesn't exist; will check for that later
+    operation = collection.update_one(
         {"email": g.email},                     # query
         {"$unset":{F"bins.{bin_id}": ""}}       # update
     )
-    return "", 204
+
+    # if no modification was done, then the bin did not exist
+    if operation.modified_count:
+        return "", 204
+    else:
+        return "", 404
 
 @app.route('/bins/<bin_id>', methods=['GET','PUT','DELETE'])
 def bin_content(bin_id):
