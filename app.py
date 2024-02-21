@@ -3,12 +3,14 @@ from flask import Flask, jsonify, request, abort, g
 import jwt
 from datetime import datetime, timedelta, timezone
 import uuid
-import pymongo
+from pymongo import MongoClient
 
+DATABASE_NAME = "mydatabase"
+COLLECTION_NAME = "bins"
 SECRET_PHRASE = "my m@ss!ve s3cr3t"
 
-mongoclient = pymongo.MongoClient("mongodb://localhost:27017/")
-collection = mongoclient["bins"]["bins"]
+mongoclient = MongoClient("mongodb://localhost:27017/")
+collection = mongoclient[DATABASE_NAME][COLLECTION_NAME]
 
 app = Flask(__name__)
 
@@ -37,7 +39,7 @@ def authenticate():
     endpoint = request.endpoint
 
     # Check if the endpoint is in the list of exempt routes
-    if endpoint in ['get_about','create_token','verify_token']:
+    if endpoint in ['get_api_info','create_token','verify_token']:
         return  # Skip authentication for this endpoint
     
     # Proceed with authentication otherwise
@@ -52,7 +54,7 @@ def authenticate():
 #   API endpoint: GET about
 # -----------------------------------------------------------------------------
 @app.route('/about',methods=['GET'])
-def get_about():
+def get_api_info():
     # this just returns a static value
     body = dict(
         SpiritAnimal="Magic Pony", 
@@ -215,7 +217,13 @@ def handle_get_bin_contents(bin_id):
     # is only one return value.
     cursor = collection.aggregate(pipeline)
     body = next(cursor)
-    return jsonify(body), 200
+
+    # the database aggregation returns only the bin_id if the bin does not
+    # exist, so if the "contents" key is not in the return value, return 404
+    if "contents" in body:
+        return jsonify(body), 200
+    else:
+        return "", 404
 
 def handle_update_bin_contents(bin_id):
     # get the new bin value from the request
