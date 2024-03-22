@@ -1,5 +1,6 @@
 # app.py
 from flask import Flask, jsonify, request, abort, g
+from flask_cors import CORS
 import jwt
 from datetime import datetime, timedelta, timezone
 import uuid
@@ -13,6 +14,7 @@ mongoclient = MongoClient("mongodb://localhost:27017/")
 collection = mongoclient[DATABASE_NAME][COLLECTION_NAME]
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 
 # =============================================================================
 #   APP before_request
@@ -37,6 +39,10 @@ def authenticate():
 
     # Get the endpoint name of the current request
     endpoint = request.endpoint
+
+    # Ignore auth for OPTIONS, which is used for CORS
+    if request.method == "OPTIONS":
+        return
 
     # Check if the endpoint is in the list of exempt routes
     if endpoint in ['get_api_info','create_token','verify_token']:
@@ -185,12 +191,14 @@ def handle_create_bin():
     return jsonify(body), 201
 
 
-@app.route('/bins', methods=['GET','POST'])
+@app.route('/bins', methods=['GET','POST','OPTIONS'])
 def list_bins():
     if request.method == 'GET':
         return handle_get_bin_list()
     elif request.method == 'POST':
         return handle_create_bin()
+    elif request.method == 'OPTIONS':
+        return "", 204
 
 
 # =============================================================================
