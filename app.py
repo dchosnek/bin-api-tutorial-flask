@@ -59,7 +59,7 @@ def authenticate():
 # =============================================================================
 #   API endpoint: GET about
 # -----------------------------------------------------------------------------
-@app.route('/about',methods=['GET'])
+@app.route('/api/v1/about',methods=['GET'])
 def get_api_info():
     # this just returns a static value
     body = dict(
@@ -72,7 +72,7 @@ def get_api_info():
 # =============================================================================
 #   API endpoint: GET /token?email={{email}}
 # -----------------------------------------------------------------------------
-@app.route('/token',methods=['GET'])
+@app.route('/api/v1/token',methods=['GET'])
 def create_token():
     # email is a required parameter
     email = request.args.get("email")
@@ -140,7 +140,7 @@ def create_token():
 # =============================================================================
 #   API endpoint: GET token/:token (verify token)
 # -----------------------------------------------------------------------------
-@app.route('/token/<token>', methods=['GET'])
+@app.route('/api/v1/token/<token>', methods=['GET'])
 def verify_token(token):
     try:
         decoded = jwt.decode(token, SECRET_PHRASE, algorithms=["HS256"])
@@ -191,7 +191,7 @@ def handle_create_bin():
     return jsonify(body), 201
 
 
-@app.route('/bins', methods=['GET','POST','OPTIONS'])
+@app.route('/api/v1/bins', methods=['GET','POST','OPTIONS'])
 def list_bins():
     if request.method == 'GET':
         return handle_get_bin_list()
@@ -267,7 +267,7 @@ def handle_delete_bin(bin_id):
     else:
         return "", 404
 
-@app.route('/bins/<bin_id>', methods=['GET','PUT','DELETE'])
+@app.route('/api/v1/bins/<bin_id>', methods=['GET','PUT','DELETE'])
 def bin_content(bin_id):
     if request.method == 'GET':
         return handle_get_bin_contents(bin_id)
