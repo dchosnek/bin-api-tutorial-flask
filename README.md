@@ -1,14 +1,14 @@
 # Work in progress
 
-This repo contains partially completed work.
+This repo contains a working prototype of the API implemented [here](https://github.com/dchosnek/bin-api-tutorial-aws).
 
-At this point, the Flask server appears to be working and approximates the behavior of the serverless implementation of this API implemented [here](https://github.com/dchosnek/bin-api-tutorial-aws).
+The next step is to combine this backend API with the front end web UI. That backend (flask) API is implmented [here](https://github.com/dchosnek/bin-api-tutorial-react).
 
 - - -
 
 ### Environment variables
 
-Currently using these EVs:
+For local machine development, using these EVs:
 
 ```
 export FLASK_APP=app.py
