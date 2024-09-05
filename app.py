@@ -8,7 +8,8 @@ from pymongo import MongoClient
 
 DATABASE_NAME = "mydatabase"
 COLLECTION_NAME = "bins"
-SECRET_PHRASE = str(uuid.uuid4())
+with open('secret.txt', 'r') as file:
+    SECRET_PHRASE = file.read().strip()
 
 mongoclient = MongoClient("mongodb://localhost:27017/")
 collection = mongoclient[DATABASE_NAME][COLLECTION_NAME]
